@@ -1,46 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>QIS FEST</title>
-  <style>
-    body{
-      font-family: Arial;
-      text-align: center;
-      padding: 40px;
-      background:#f4f4f4;
-    }
-    .header{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:15px;
-    }
-    .header img{
-      width:70px;
-      height:auto;
-    }
-    a{
-      display:block;
-      margin:20px auto;
-      font-size:20px;
-      text-decoration:none;
-      color:white;
-      background:#ff5722;
-      padding:15px;
-      width:260px;
-      border-radius:6px;
-    }
-  </style>
+<title>QIS Fest Food Ordering</title>
+<style>
+body{
+ font-family:Arial;
+ text-align:center;
+ background:#f4f4f4;
+}
+.box{
+ margin-top:100px;
+ background:white;
+ padding:30px;
+ width:300px;
+ margin-left:auto;
+ margin-right:auto;
+ border-radius:10px;
+}
+button{
+ width:200px;
+ padding:12px;
+ margin:10px;
+ background:#ff5722;
+ color:white;
+ border:none;
+ font-size:16px;
+ cursor:pointer;
+}
+button:hover{background:#e64a19}
+img{width:80px}
+</style>
 </head>
+
 <body>
 
-<div class="header">
-  <img src="college.png" alt="College Logo">
-  <h1>🎉 QIS College Fest</h1>
-</div>
+<div class="box">
+ <img src="college.png"><br><br>
+ <h2>QIS College Fest</h2>
+ <p>Food Ordering System</p>
 
-<a href="qisfest.html">🍔 Customer Order</a>
-<a href="admin.html">🧑‍🍳 Stall Admin</a>
+ <button onclick="location.href='qisfest.html'">
+   🍴 Customer Order
+ </button>
+
+ <button onclick="location.href='admin.html'">
+   🧑‍🍳 Stall Admin
+ </button>
+</div>
 
 </body>
 </html>
