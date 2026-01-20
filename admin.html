@@ -1,32 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard - College Fest</title>
+<title>Admin Panel - QIS Fest</title>
 <style>
-body { font-family: Arial; text-align: center; background: #f4f4f4; margin:0; padding:0;}
-h1, h2 { color:#ff5722;}
-input, button { padding: 10px; margin: 10px; width: 200px;}
-button { background:#ff5722; color:white; border:none; cursor:pointer;}
-button:hover { background:#e64a19;}
-table { width: 95%; margin: 20px auto; border-collapse: collapse;}
-th, td { border: 1px solid #333; padding: 8px;}
-.hidden { display:none; }
+body{font-family:Arial;background:#f4f4f4;padding:20px;}
+h1{color:#ff5722;}
+input,button{padding:10px;margin:5px;}
+button{background:#ff5722;color:white;border:none;cursor:pointer;}
+table{width:100%;border-collapse:collapse;background:white;margin-top:20px;}
+th,td{border:1px solid #ccc;padding:8px;text-align:center;}
+.hidden{display:none;}
 </style>
 </head>
 <body>
 
-<h1>📋 Admin Dashboard</h1>
+<h1>🔐 Admin Login</h1>
 
-<div id="adminLogin">
-    <input id="apass" type="password" placeholder="Admin Password">
+<div id="loginBox">
+    <input id="adminUser" placeholder="Username"><br>
+    <input id="adminPass" type="password" placeholder="Password"><br>
     <button onclick="adminLogin()">Login</button>
-    <p>Password: <b>admin123</b></p>
 </div>
 
 <div id="adminPanel" class="hidden">
-    <button onclick="loadOrders()">🔄 Refresh Orders</button>
+    <h1>📋 Orders Dashboard</h1>
+    <button onclick="logout()">Logout</button>
     <table>
         <thead>
             <tr>
@@ -35,7 +33,7 @@ th, td { border: 1px solid #333; padding: 8px;}
                 <th>Stall</th>
                 <th>Items</th>
                 <th>Total</th>
-                <th>Pickup Time</th>
+                <th>Pickup</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -44,26 +42,31 @@ th, td { border: 1px solid #333; padding: 8px;}
 </div>
 
 <script>
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
+
 function adminLogin(){
-    let pass = document.getElementById("apass").value;
-    if(pass==="admin123"){
-        document.getElementById("adminLogin").classList.add("hidden");
-        document.getElementById("adminPanel").classList.remove("hidden");
+    let u = adminUser.value;
+    let p = adminPass.value;
+
+    if(u===ADMIN_USER && p===ADMIN_PASS){
+        sessionStorage.setItem("admin","yes");
+        loginBox.classList.add("hidden");
+        adminPanel.classList.remove("hidden");
         loadOrders();
-    } else alert("Wrong password!");
+    } else {
+        alert("Invalid Admin Credentials");
+    }
 }
 
 function loadOrders(){
-    let table = document.getElementById("ordersTable");
     let orders = JSON.parse(localStorage.getItem("orders")||"[]");
-    table.innerHTML="";
-    if(orders.length===0){
-        table.innerHTML="<tr><td colspan='7'>No orders yet</td></tr>";
-        return;
-    }
+    let table = document.getElementById("ordersTable");
+    table.innerHTML = "";
+
     orders.forEach(o=>{
-        table.innerHTML +=
-        `<tr>
+        table.innerHTML += `
+        <tr>
             <td>${o.name}</td>
             <td>${o.phone}</td>
             <td>${o.stall}</td>
@@ -73,6 +76,17 @@ function loadOrders(){
             <td>${o.status}</td>
         </tr>`;
     });
+}
+
+function logout(){
+    sessionStorage.removeItem("admin");
+    location.reload();
+}
+
+if(sessionStorage.getItem("admin")==="yes"){
+    loginBox.classList.add("hidden");
+    adminPanel.classList.remove("hidden");
+    loadOrders();
 }
 </script>
 
