@@ -1,94 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Panel - QIS Fest</title>
+<title>Stall Admin</title>
 <style>
-body{font-family:Arial;background:#f4f4f4;padding:20px;}
-h1{color:#ff5722;}
-input,button{padding:10px;margin:5px;}
-button{background:#ff5722;color:white;border:none;cursor:pointer;}
-table{width:100%;border-collapse:collapse;background:white;margin-top:20px;}
-th,td{border:1px solid #ccc;padding:8px;text-align:center;}
-.hidden{display:none;}
+body{font-family:Arial;text-align:center}
+table{margin:auto;border-collapse:collapse}
+td,th{border:1px solid #000;padding:6px}
+button{padding:5px}
 </style>
 </head>
 <body>
 
-<h1>🔐 Admin Login</h1>
+<h2>🔐 Stall Login</h2>
+<input id="stall" placeholder="Stall Name"><br><br>
+<input id="pass" type="password" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
 
-<div id="loginBox">
-    <input id="adminUser" placeholder="Username"><br>
-    <input id="adminPass" type="password" placeholder="Password"><br>
-    <button onclick="adminLogin()">Login</button>
-</div>
-
-<div id="adminPanel" class="hidden">
-    <h1>📋 Orders Dashboard</h1>
-    <button onclick="logout()">Logout</button>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Stall</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Pickup</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="ordersTable"></tbody>
-    </table>
-</div>
+<table id="tbl" style="display:none">
+<tr>
+<th>Token</th><th>Name</th><th>Items</th>
+<th>Status</th><th>Action</th>
+</tr>
+</table>
 
 <script>
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "1234";
+const creds={
+"Veg Meals":"veg123",
+"Non Veg Meals":"nonveg123",
+"Biryani":"biryani123",
+"Ice Cream":"ice123",
+"Drinks":"drink123",
+"Starters":"start123"
+};
 
-function adminLogin(){
-    let u = adminUser.value;
-    let p = adminPass.value;
-
-    if(u===ADMIN_USER && p===ADMIN_PASS){
-        sessionStorage.setItem("admin","yes");
-        loginBox.classList.add("hidden");
-        adminPanel.classList.remove("hidden");
-        loadOrders();
-    } else {
-        alert("Invalid Admin Credentials");
-    }
+function login(){
+if(creds[stall.value]===pass.value){
+sessionStorage.setItem("stall",stall.value);
+tbl.style.display="table";
+show();
+}else alert("Invalid Login");
 }
 
-function loadOrders(){
-    let orders = JSON.parse(localStorage.getItem("orders")||"[]");
-    let table = document.getElementById("ordersTable");
-    table.innerHTML = "";
+function show(){
+let s=sessionStorage.getItem("stall");
+let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+tbl.innerHTML=tbl.rows[0].outerHTML;
 
-    orders.forEach(o=>{
-        table.innerHTML += `
-        <tr>
-            <td>${o.name}</td>
-            <td>${o.phone}</td>
-            <td>${o.stall}</td>
-            <td>${o.items.map(i=>i.name).join(", ")}</td>
-            <td>₹${o.total}</td>
-            <td>${o.pickupTime}</td>
-            <td>${o.status}</td>
-        </tr>`;
-    });
+orders.filter(o=>o.stall===s).forEach(o=>{
+tbl.innerHTML+=`
+<tr>
+<td>${o.token}</td>
+<td>${o.name}</td>
+<td>${o.items.map(i=>i.name).join(",")}</td>
+<td>${o.status}</td>
+<td>
+${o.status==="Preparing"?
+`<button onclick="update(${o.token},'Ready')">READY</button>`:
+o.status==="Ready"?
+`<button onclick="update(${o.token},'Taken')">TAKEN</button>`:
+"✔"}
+</td>
+</tr>`;
+});
 }
 
-function logout(){
-    sessionStorage.removeItem("admin");
-    location.reload();
+function update(t,s){
+let orders=JSON.parse(localStorage.getItem("orders"));
+orders.forEach(o=>{if(o.token===t)o.status=s});
+localStorage.setItem("orders",JSON.stringify(orders));
+show();
 }
 
-if(sessionStorage.getItem("admin")==="yes"){
-    loginBox.classList.add("hidden");
-    adminPanel.classList.remove("hidden");
-    loadOrders();
-}
+setInterval(show,5000);
 </script>
-
 </body>
 </html>
