@@ -1,132 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>College Fest Food Ordering</title>
+<title>QIS COLLEGE Fest 
+    food Ordering</title>
 <style>
-body { font-family: Arial; text-align: center; background: #f4f4f4; margin:0; padding:0;}
-h1, h2 { color:#ff5722;}
-input, select, button { padding: 10px; margin: 10px; width: 200px;}
-button { background:#ff5722; color:white; border:none; cursor:pointer;}
-button:hover { background:#e64a19;}
-#menu div { background:white; margin: 10px; padding:10px; }
-.hidden { display:none; }
+body{font-family:Arial;text-align:center;background:#f4f4f4}
+button{padding:8px;background:#ff5722;color:white;border:none}
+.card{background:white;margin:10px;padding:10px}
+.hidden{display:none}
 </style>
 </head>
 <body>
 
-<h1>🎉 QIS College Fest Food Order</h1>
+<h1>🍴 QIS College Fest</h1>
 
-<!-- CUSTOMER LOGIN -->
-<div id="customerLogin">
-    <h2>Customer Login</h2>
-    <input id="cname" placeholder="Your Name">
-    <input id="cphone" placeholder="Phone Number">
-    <button onclick="customerLogin()">Login</button>
+<div id="login">
+<input id="name" placeholder="Name"><br><br>
+<input id="phone" placeholder="Phone"><br><br>
+<button onclick="login()">Login</button>
 </div>
 
-<!-- CUSTOMER STALL SELECTION -->
-<div id="customerPanel" class="hidden">
-    <h2>Select Stall</h2>
-    <select id="stallSelect" onchange="loadMenu()">
-        <option value="">-- Select Stall --</option>
-        <option>Veg Meals</option>
-        <option>Non Veg Meals</option>
-        <option>Biryani</option>
-        <option>Ice Cream</option>
-        <option>Drinks</option>
-        <option>Starters</option>
-    </select>
-    <div id="menu"></div>
-    <h3>Cart</h3>
-    <div id="cart"></div>
-    <button onclick="placeOrder()">Place Order</button>
-    <p id="msg"></p>
+<div id="panel" class="hidden">
+
+<h3>Welcome, <span id="cname"></span></h3>
+
+<select id="stall" onchange="loadMenu()">
+<option value="">Select Stall</option>
+<option>Veg Meals</option>
+<option>Non Veg Meals</option>
+<option>Biryani</option>
+<option>Ice Cream</option>
+<option>Drinks</option>
+<option>Starters</option>
+</select>
+
+<div id="menu"></div>
+
+<h3>Cart</h3>
+<div id="cart"></div>
+<button onclick="placeOrder()">Place Order</button>
+
+<h2>📜 Your Orders</h2>
+<div id="orders"></div>
+
 </div>
 
 <script>
-// ---------------- GLOBAL VARIABLES ----------------
-let cart = [];
-let currentStall = "";
-const menus = {
-    "Veg Meals":[{name:"Veg Thali",price:80},{name:"Curd Rice",price:40},{name:"Rice,paneer curry",price:70},{name:"rice,melmaker",price:70},{name:"Rice,sambar",price:50}],
-    "Non Veg Meals":[{name:"Chicken rice",price:120},{name:"Egg Rice",price:70},{name:"fishfry",price:120},{name:"prawns rice",price:100},{name:"chicken fry",price:90}],
-    "Biryani":[{name:"Chicken Biryani",price:150},{name:"Veg Biryani",price:100},{name:"egg Biryani",price:110},{name:"dum Biryani",price:150},{name:"paneer Biryani",price:130}],
-    "Ice Cream":[{name:"Vanilla",price:30},{name:"Chocolate",price:40},{name:"butterscotch",price:50},{name:"strawberry",price:60},{name:"Mango",price:400}],
-    "Drinks":[{name:"Lime Soda",price:25},{name:"Pepsi",price:30},{name:"blueberry mojito",price:70},{name:"classic mint mojito",price:80},{name:"watermelon mojito",price:80}],
-    "Starters":[{name:"Gobi",price:60},{name:"Chicken 65",price:90},{name:"crispy corn",price:80},{name:"paneer 65",price:60},{name:"veg roll",price:80}]
+let cart=[];
+
+const stallInfo={
+"Veg Meals":{prep:15,loc:"Block A"},
+"Non Veg Meals":{prep:20,loc:"Block B"},
+"Biryani":{prep:25,loc:"Block C"},
+"Ice Cream":{prep:5,loc:"Block D"},
+"Drinks":{prep:5,loc:"Block E"},
+"Starters":{prep:10,loc:"Block F"}
 };
 
-// ---------------- CUSTOMER LOGIN ----------------
-function customerLogin(){
-    let name = document.getElementById("cname").value;
-    let phone = document.getElementById("cphone").value;
-    if(!name || !phone){ alert("Enter all details!"); return; }
-    localStorage.setItem("customer", JSON.stringify({name, phone}));
-    document.getElementById("customerLogin").classList.add("hidden");
-    document.getElementById("customerPanel").classList.remove("hidden");
+const menus={
+"Veg Meals":[{name:"Veg Thali",price:80},{name:"Curd Rice",price:40},{name:"Rice,paneer curry",price:70},{name:"Rice,melmaker",price:70},{name:"Rice,sambar",price:50}],
+"Non Veg Meals":[{name:"Chicken rice",price:120},{name:"Egg Rice",price:70},{name:"Fishfry",price:120},{name:"Prawns rice",price:100},{name:"Chicken fry",price:90}],
+"Biryani":[{name:"Chicken Biryani",price:150},{name:"Veg Biryani",price:100},{name:"Egg Biryani",price:110},{name:"Dum Biryani",price:150},{name:"Paneer Biryani",price:130}],
+"Ice Cream":[{name:"Vanilla",price:30},{name:"Chocolate",price:40},{name:"Butterscotch",price:50},{name:"strawberry",price:60},{name:"Mango",price:40}],
+"Drinks":[{name:"Lime Soda",price:25},{name:"Pepsi",price:30},{name:"Blueberry mojito",price:70},{name:"Classic mint mojito",price:80},{name:"Watermelon mojito",price:80}],
+"Starters":[{name:"Gobi",price:60},{name:"Chicken 65",price:90},{name:"Crispy corn",price:80},{name:"Paneer 65",price:60},{name:"Veg roll",price:80}]
+};
+
+function login(){
+let cust={name:name.value,phone:phone.value};
+localStorage.setItem("customer",JSON.stringify(cust));
+cname.innerText=cust.name;
+loginDiv=document.getElementById("login");
+loginDiv.classList.add("hidden");
+panel.classList.remove("hidden");
+showOrders();
 }
 
-// ---------------- LOAD MENU ----------------
 function loadMenu(){
-    currentStall = document.getElementById("stallSelect").value;
-    cart = [];
-    document.getElementById("menu").innerHTML="";
-    document.getElementById("cart").innerHTML="";
-    document.getElementById("msg").innerHTML="";
-    if(!currentStall) return;
-
-    menus[currentStall].forEach(i=>{
-        document.getElementById("menu").innerHTML +=
-        `<div>${i.name} - ₹${i.price} 
-        <button onclick='addItem("${i.name}",${i.price})'>Add</button></div>`;
-    });
+cart=[];
+menu.innerHTML="";
+menus[stall.value].forEach(i=>{
+menu.innerHTML+=`<p>${i.name} ₹${i.price}
+<button onclick="add('${i.name}',${i.price})">Add</button></p>`;
+});
 }
 
-// ---------------- ADD ITEM ----------------
-function addItem(name, price){
-    cart.push({name, price});
-    let cartDiv = document.getElementById("cart");
-    cartDiv.innerHTML = "";
-    cart.forEach(i=>cartDiv.innerHTML += `<p>${i.name} - ₹${i.price}</p>`);
+function add(n,p){
+cart.push({name:n,price:p});
+cartDiv=document.getElementById("cart");
+cartDiv.innerHTML="";
+cart.forEach(i=>cartDiv.innerHTML+=`<p>${i.name}</p>`);
 }
 
-// ---------------- PLACE ORDER ----------------
 function placeOrder(){
-    if(cart.length===0){ alert("Add items!"); return; }
-    let cust = JSON.parse(localStorage.getItem("customer"));
-    if(!cust){ alert("Customer not logged in!"); return; }
-    let now = new Date();
-    let pickup = new Date(now.getTime()+15*60000);
-    let total = cart.reduce((sum,i)=>sum+i.price,0);
+let cust=JSON.parse(localStorage.getItem("customer"));
+let token=Math.floor(100+Math.random()*900);
+let now=new Date();
+let pickup=new Date(now.getTime()+stallInfo[stall.value].prep*60000);
+let order = {
+  token: token,
+  name: cust.name,
+  phone: cust.phone,
+  stall: stall.value,
+  items: cart,
+  location: stallInfo[stall.value].loc,
+  pickupTime: pickup.toLocaleTimeString(),
+  status: "Preparing"   // ⭐ THIS LINE FIXES "undefined"
+};
 
-    let order = {
-        name: cust.name,
-        phone: cust.phone,
-        stall: currentStall,
-        items: cart,
-        total: total,
-        pickupTime: pickup.toLocaleTimeString(),
-        status: "Preparing",
-        orderTime: now.toLocaleTimeString()
-    };
 
-    let orders = JSON.parse(localStorage.getItem("orders")||"[]");
-    orders.push(order);
-    localStorage.setItem("orders", JSON.stringify(orders));
+let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+orders.push(order);
+localStorage.setItem("orders",JSON.stringify(orders));
 
-    document.getElementById("msg").innerHTML = `
-        ✅ Order placed!<br>
-        ⏰ Pickup at ${order.pickupTime}<br>
-        Please receive your order at ${currentStall} stall.`;
-
-    cart = [];
-    document.getElementById("cart").innerHTML = "";
-    document.getElementById("menu").innerHTML = "";
+cart=[];
+menu.innerHTML="";
+cartDiv.innerHTML="";
+showOrders();
 }
-</script>
 
+function showOrders(){
+let cust=JSON.parse(localStorage.getItem("customer"));
+let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+ordersDiv=document.getElementById("orders");
+ordersDiv.innerHTML="";
+
+orders.filter(o=>o.phone===cust.phone).forEach(o=>{
+ordersDiv.innerHTML+=`
+<div class="card">
+🎟 <b>Token:</b> ${o.token}<br>
+🍴 <b>Stall:</b> ${o.stall}<br>
+📍 ${o.location}<br>
+🧾 ${o.items.map(i=>i.name).join(", ")}<br>
+⏰ Pickup: ${o.pickupTime}<br>
+<b>Status:</b> ${o.status}
+</div>`;
+});
+}
+
+setInterval(showOrders,3000);
+</script>
 </body>
 </html>
-
