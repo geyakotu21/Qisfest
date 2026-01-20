@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - College Fest</title>
+<style>
+body { font-family: Arial; text-align: center; background: #f4f4f4; margin:0; padding:0;}
+h1, h2 { color:#ff5722;}
+input, button { padding: 10px; margin: 10px; width: 200px;}
+button { background:#ff5722; color:white; border:none; cursor:pointer;}
+button:hover { background:#e64a19;}
+table { width: 95%; margin: 20px auto; border-collapse: collapse;}
+th, td { border: 1px solid #333; padding: 8px;}
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<h1>📋 Admin Dashboard</h1>
+
+<div id="adminLogin">
+    <input id="apass" type="password" placeholder="Admin Password">
+    <button onclick="adminLogin()">Login</button>
+    <p>Password: <b>admin123</b></p>
+</div>
+
+<div id="adminPanel" class="hidden">
+    <button onclick="loadOrders()">🔄 Refresh Orders</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Stall</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Pickup Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="ordersTable"></tbody>
+    </table>
+</div>
+
+<script>
+function adminLogin(){
+    let pass = document.getElementById("apass").value;
+    if(pass==="admin123"){
+        document.getElementById("adminLogin").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        loadOrders();
+    } else alert("Wrong password!");
+}
+
+function loadOrders(){
+    let table = document.getElementById("ordersTable");
+    let orders = JSON.parse(localStorage.getItem("orders")||"[]");
+    table.innerHTML="";
+    if(orders.length===0){
+        table.innerHTML="<tr><td colspan='7'>No orders yet</td></tr>";
+        return;
+    }
+    orders.forEach(o=>{
+        table.innerHTML +=
+        `<tr>
+            <td>${o.name}</td>
+            <td>${o.phone}</td>
+            <td>${o.stall}</td>
+            <td>${o.items.map(i=>i.name).join(", ")}</td>
+            <td>₹${o.total}</td>
+            <td>${o.pickupTime}</td>
+            <td>${o.status}</td>
+        </tr>`;
+    });
+}
+</script>
+
+</body>
+</html>
