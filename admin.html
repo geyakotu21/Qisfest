@@ -1,77 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Stall Admin</title>
+<title>QIS Fest Food Ordering</title>
 <style>
-body{font-family:Arial;text-align:center}
-table{margin:auto;border-collapse:collapse}
-td,th{border:1px solid #000;padding:6px}
-button{padding:5px}
+body{
+  font-family:"Segoe UI", Arial;
+  background:#f5f6fa;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.box{
+  background:white;
+  padding:35px;
+  width:320px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  text-align:center;
+  border-top:6px solid #d4af37;
+}
+
+img{
+  width:90px;
+}
+
+h2{
+  color:#1f2a7c;
+  margin:10px 0 5px;
+}
+
+p{
+  color:#555;
+  font-size:14px;
+}
+
+button{
+  width:220px;
+  margin:12px 0;
+}
 </style>
 </head>
+
 <body>
 
-<h2>🔐 Stall Login</h2>
-<input id="stall" placeholder="Stall Name"><br><br>
-<input id="pass" type="password" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
+<div class="box">
+ <img src="college.png"><br><br>
+ <h2>QIS College Fest</h2>
+ <p>Food Ordering System</p>
 
-<table id="tbl" style="display:none">
-<tr>
-<th>Token</th><th>Name</th><th>Items</th>
-<th>Status</th><th>Action</th>
-</tr>
-</table>
+ <button onclick="location.href='qisfest.html'">
+   🍴 Customer Order
+ </button>
 
-<script>
-const creds={
-"Veg Meals":"veg123",
-"Non Veg Meals":"nonveg123",
-"Biryani":"biryani123",
-"Ice Cream":"ice123",
-"Drinks":"drink123",
-"Starters":"start123"
-};
+ <button onclick="location.href='admin.html'">
+   🧑‍🍳 Stall Admin
+ </button>
+</div>
 
-function login(){
-if(creds[stall.value]===pass.value){
-sessionStorage.setItem("stall",stall.value);
-tbl.style.display="table";
-show();
-}else alert("Invalid Login");
-}
-
-function show(){
-let s=sessionStorage.getItem("stall");
-let orders=JSON.parse(localStorage.getItem("orders")||"[]");
-tbl.innerHTML=tbl.rows[0].outerHTML;
-
-orders.filter(o=>o.stall===s).forEach(o=>{
-tbl.innerHTML+=`
-<tr>
-<td>${o.token}</td>
-<td>${o.name}</td>
-<td>${o.items.map(i=>i.name).join(",")}</td>
-<td>${o.status}</td>
-<td>
-${o.status==="Preparing"?
-`<button onclick="update(${o.token},'Ready')">READY</button>`:
-o.status==="Ready"?
-`<button onclick="update(${o.token},'Taken')">TAKEN</button>`:
-"✔"}
-</td>
-</tr>`;
-});
-}
-
-function update(t,s){
-let orders=JSON.parse(localStorage.getItem("orders"));
-orders.forEach(o=>{if(o.token===t)o.status=s});
-localStorage.setItem("orders",JSON.stringify(orders));
-show();
-}
-
-setInterval(show,5000);
-</script>
 </body>
 </html>
