@@ -1,63 +1,162 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>QIS Fest Food Ordering</title>
+<title>QIS Fest – Stall Admin Panel</title>
+
 <style>
 body{
   font-family:"Segoe UI", Arial;
   background:#f5f6fa;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-
-.box{
-  background:white;
-  padding:35px;
-  width:320px;
-  border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.15);
   text-align:center;
-  border-top:6px solid #d4af37;
+  margin:0;
 }
 
-img{
-  width:90px;
+.header{
+  background:#1f2a7c;
+  color:white;
+  padding:15px;
+  border-bottom:5px solid #d4af37;
 }
 
-h2{
-  color:#1f2a7c;
-  margin:10px 0 5px;
+table{
+  margin:20px auto;
+  border-collapse:collapse;
+  width:90%;
+  background:white;
 }
 
-p{
-  color:#555;
-  font-size:14px;
+th{
+  background:#1f2a7c;
+  color:white;
+}
+
+td,th{
+  padding:8px;
+  border:1px solid #ccc;
 }
 
 button{
-  width:220px;
-  margin:12px 0;
+  padding:6px 12px;
+  background:#1f2a7c;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
 }
+
+button:hover{
+  background:#16205c;
+}
+
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="box">
- <img src="college.png"><br><br>
- <h2>QIS College Fest</h2>
- <p>Food Ordering System</p>
-
- <button onclick="location.href='qisfest.html'">
-   🍴 Customer Order
- </button>
-
- <button onclick="location.href='admin.html'">
-   🧑‍🍳 Stall Admin
- </button>
+<div class="header">
+  <h2>QIS Fest – Stall Admin Panel</h2>
+  <p>Quality Is Strength</p>
 </div>
+
+<!-- LOGIN -->
+<div id="login">
+  <input id="stallName" placeholder="Stall Name"><br><br>
+  <input id="stallPass" type="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- ORDERS TABLE -->
+<table id="ordersTable" class="hidden">
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Customer</th>
+      <th>Items</th>
+      <th>Pickup</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+/* ===== STALL CREDENTIALS ===== */
+const credentials={
+  "Veg Meals":"veg123",
+  "Non Veg Meals":"nonveg123",
+  "Biryani":"biryani123",
+  "Ice Cream":"ice123",
+  "Drinks":"drink123",
+  "Starters":"start123"
+};
+
+let currentStall="";
+
+/* ===== LOGIN ===== */
+function login(){
+  const stall=document.getElementById("stallName").value.trim();
+  const pass=document.getElementById("stallPass").value.trim();
+
+  if(credentials[stall]!==pass){
+    alert("Invalid stall or password");
+    return;
+  }
+
+  currentStall=stall;
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("ordersTable").classList.remove("hidden");
+
+  loadOrders();
+}
+
+/* ===== LOAD ORDERS ===== */
+function loadOrders(){
+  if(!currentStall) return;
+
+  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+  const tbody=document.querySelector("#ordersTable tbody");
+
+  tbody.innerHTML="";
+
+  orders.filter(o=>o.stall===currentStall).forEach(o=>{
+    tbody.innerHTML+=`
+      <tr>
+        <td>${o.token}</td>
+        <td>${o.name}<br>${o.phone}</td>
+        <td>${o.items.map(i=>i.name).join(", ")}</td>
+        <td>${o.pickupTime}</td>
+        <td>${o.status}</td>
+        <td>
+          ${o.status==="Preparing"
+            ? `<button onclick="updateStatus(${o.token},'Ready')">READY</button>`
+            : o.status==="Ready"
+              ? `<button onclick="updateStatus(${o.token},'Taken')">TAKEN</button>`
+              : "✔"}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ===== UPDATE STATUS ===== */
+function updateStatus(token,newStatus){
+  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+
+  orders.forEach(o=>{
+    if(o.token===token){
+      o.status=newStatus;
+    }
+  });
+
+  localStorage.setItem("orders",JSON.stringify(orders));
+  loadOrders();
+}
+
+/* ===== AUTO REFRESH ===== */
+setInterval(loadOrders,3000);
+</script>
 
 </body>
 </html>
