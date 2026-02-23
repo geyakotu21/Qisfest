@@ -1,42 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>QIS COLLEGE Fest 
-    food Ordering</title>
+<meta charset="UTF-8">
+<title>QIS College Fest – Food Ordering</title>
+
 <style>
-body{font-family:Arial;text-align:center;background:#f4f4f4}
-button{padding:8px;background:#ff5722;color:white;border:none}
-.card{background:white;margin:10px;padding:10px}
-.hidden{display:none}
+body{
+  font-family:"Segoe UI", Arial;
+  margin:0;
+  text-align:center;
+  background:#f5f6fa;
+}
+
+.header{
+  background:#1f2a7c;
+  color:white;
+  padding:15px;
+  border-bottom:5px solid #d4af37;
+}
+
+.header img{ width:60px; }
+
+.header p{
+  margin:4px;
+  font-size:13px;
+  color:#d4af37;
+}
+
+button{
+  padding:8px 14px;
+  background:#1f2a7c;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+button:hover{ background:#16205c; }
+
+.card{
+  background:white;
+  margin:12px auto;
+  padding:12px;
+  border-left:5px solid #d4af37;
+  border-radius:10px;
+  width:190px;
+}
+
+#menu{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+img.food{
+  width:140px;
+  height:100px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+select,input{
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+.hidden{ display:none }
 </style>
 </head>
+
 <body>
 
-<h1>🍴 QIS College Fest</h1>
-
-<div id="login">
-<input id="name" placeholder="Name"><br><br>
-<input id="phone" placeholder="Phone"><br><br>
-<button onclick="login()">Login</button>
+<!-- HEADER -->
+<div class="header">
+  <img src="college.png">
+  <h1>QIS College Fest</h1>
+  <p>Quality Is Strength</p>
 </div>
 
+<!-- LOGIN -->
+<div id="loginBox">
+  <input id="custName" placeholder="Name"><br><br>
+  <input id="custPhone" placeholder="Phone"><br><br>
+  <button onclick="loginUser()">Login</button>
+</div>
+
+<!-- MAIN PANEL -->
 <div id="panel" class="hidden">
 
 <h3>Welcome, <span id="cname"></span></h3>
 
-<select id="stall" onchange="loadMenu()">
-<option value="">Select Stall</option>
-<option>Veg Meals</option>
-<option>Non Veg Meals</option>
-<option>Biryani</option>
-<option>Ice Cream</option>
-<option>Drinks</option>
-<option>Starters</option>
+<select id="stallSelect" onchange="loadMenu()">
+  <option value="">Select Stall</option>
+  <option>Veg Meals</option>
+  <option>Non Veg Meals</option>
+  <option>Biryani</option>
+  <option>Ice Cream</option>
+  <option>Drinks</option>
+  <option>Starters</option>
 </select>
 
 <div id="menu"></div>
 
-<h3>Cart</h3>
+<h3>🛒 Cart</h3>
 <div id="cart"></div>
 <button onclick="placeOrder()">Place Order</button>
 
@@ -46,99 +113,167 @@ button{padding:8px;background:#ff5722;color:white;border:none}
 </div>
 
 <script>
-let cart=[];
+/* ===== GLOBAL ===== */
+let cart = [];
+const menuDiv = document.getElementById("menu");
+const cartDiv = document.getElementById("cart");
+const ordersDiv = document.getElementById("orders");
 
+/* ===== STALL INFO ===== */
 const stallInfo={
-"Veg Meals":{prep:15,loc:"Block A"},
-"Non Veg Meals":{prep:20,loc:"Block B"},
-"Biryani":{prep:25,loc:"Block C"},
-"Ice Cream":{prep:5,loc:"Block D"},
-"Drinks":{prep:5,loc:"Block E"},
-"Starters":{prep:10,loc:"Block F"}
+  "Veg Meals":{prep:15,loc:"Block A"},
+  "Non Veg Meals":{prep:20,loc:"Block B"},
+  "Biryani":{prep:25,loc:"Block C"},
+  "Ice Cream":{prep:5,loc:"Block D"},
+  "Drinks":{prep:5,loc:"Block E"},
+  "Starters":{prep:10,loc:"Block F"}
 };
 
+/* ===== MENU DATA ===== */
 const menus={
-"Veg Meals":[{name:"Veg Thali",price:80},{name:"Curd Rice",price:40},{name:"Rice,paneer curry",price:70},{name:"Rice,melmaker",price:70},{name:"Rice,sambar",price:50}],
-"Non Veg Meals":[{name:"Chicken rice",price:120},{name:"Egg Rice",price:70},{name:"Fishfry",price:120},{name:"Prawns rice",price:100},{name:"Chicken fry",price:90}],
-"Biryani":[{name:"Chicken Biryani",price:150},{name:"Veg Biryani",price:100},{name:"Egg Biryani",price:110},{name:"Dum Biryani",price:150},{name:"Paneer Biryani",price:130}],
-"Ice Cream":[{name:"Vanilla",price:30},{name:"Chocolate",price:40},{name:"Butterscotch",price:50},{name:"strawberry",price:60},{name:"Mango",price:40}],
-"Drinks":[{name:"Lime Soda",price:25},{name:"Pepsi",price:30},{name:"Blueberry mojito",price:70},{name:"Classic mint mojito",price:80},{name:"Watermelon mojito",price:80}],
-"Starters":[{name:"Gobi",price:60},{name:"Chicken 65",price:90},{name:"Crispy corn",price:80},{name:"Paneer 65",price:60},{name:"Veg roll",price:80}]
+  "Veg Meals":[
+    {name:"Veg Thali",price:80,img:"images/veg_thali.jpg"},
+    {name:"Curd Rice",price:40,img:"images/curd_rice.jpg"},
+    {name:"Rice + Paneer",price:70,img:"images/paneer_rice.jpg"},
+    {name:"Rice + Meal Maker",price:70,img:"images/mealmaker_rice.jpg"},
+    {name:"Rice + Sambar",price:50,img:"images/sambar_rice.jpg"}
+  ],
+  "Non Veg Meals":[
+    {name:"Chicken Rice",price:120,img:"images/chicken_rice.jpg"},
+    {name:"Egg Rice",price:70,img:"images/egg_rice.jpg"},
+    {name:"Fish Fry",price:120,img:"images/fish_fry.jpg"},
+    {name:"Prawns Rice",price:100,img:"images/prawns_rice.jpg"},
+    {name:"Chicken Fry",price:90,img:"images/chicken_fry.jpg"}
+  ],
+  "Biryani":[
+    {name:"Chicken Biryani",price:150,img:"images/chicken_biryani.jpg"},
+    {name:"Veg Biryani",price:100,img:"images/veg_biryani.jpg"},
+    {name:"Egg Biryani",price:110,img:"images/egg_biryani.jpg"},
+    {name:"Dum Biryani",price:150,img:"images/dum_biryani.jpg"},
+    {name:"Paneer Biryani",price:130,img:"images/paneer_biryani.jpg"}
+  ],
+  "Ice Cream":[
+    {name:"Vanilla",price:30,img:"images/vanila.jpg"},
+    {name:"Chocolate",price:40,img:"images/chocolate.jpg"},
+    {name:"Butterscotch",price:50,img:"images/butterscotch.jpg"},
+    {name:"Strawberry",price:60,img:"images/strawberry.jpg"},
+    {name:"Mango",price:40,img:"images/mango.jpg"}
+  ],
+  "Drinks":[
+    {name:"Lime Soda",price:25,img:"images/lime_soda.jpg"},
+    {name:"Pepsi",price:30,img:"images/pepsi.jpg"},
+    {name:"Blueberry Mojito",price:70,img:"images/blueberry_mojito.jpg"},
+    {name:"Mint Mojito",price:80,img:"images/mint_mojito.jpg"},
+    {name:"Watermelon Mojito",price:80,img:"images/watermelon_mojito.jpg"}
+  ],
+  "Starters":[
+    {name:"Gobi",price:60,img:"images/gobi.jpg"},
+    {name:"Chicken 65",price:90,img:"images/chicken_65.jpg"},
+    {name:"Crispy Corn",price:80,img:"images/crispy_corn.jpg"},
+    {name:"Paneer 65",price:60,img:"images/paneer_65.jpg"},
+    {name:"Veg Roll",price:80,img:"images/veg_roll.jpg"}
+  ]
 };
 
-function login(){
-let cust={name:name.value,phone:phone.value};
-localStorage.setItem("customer",JSON.stringify(cust));
-cname.innerText=cust.name;
-loginDiv=document.getElementById("login");
-loginDiv.classList.add("hidden");
-panel.classList.remove("hidden");
-showOrders();
+/* ===== LOGIN ===== */
+function loginUser(){
+  const name = custName.value.trim();
+  const phone = custPhone.value.trim();
+
+  if(!name || !phone){
+    alert("Enter name & phone");
+    return;
+  }
+
+  localStorage.setItem("customer",JSON.stringify({name,phone}));
+  document.getElementById("cname").innerText = name;
+
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("panel").classList.remove("hidden");
+
+  showOrders();
 }
 
+/* ===== LOAD MENU ===== */
 function loadMenu(){
-cart=[];
-menu.innerHTML="";
-menus[stall.value].forEach(i=>{
-menu.innerHTML+=`<p>${i.name} ₹${i.price}
-<button onclick="add('${i.name}',${i.price})">Add</button></p>`;
-});
+  cart=[];
+  cartDiv.innerHTML="";
+  menuDiv.innerHTML="";
+
+  const stall = stallSelect.value;
+  if(!stall) return;
+
+  menus[stall].forEach(i=>{
+    menuDiv.innerHTML+=`
+      <div class="card">
+        <img src="${i.img}" class="food"><br>
+        <b>${i.name}</b><br>
+        ₹${i.price}<br><br>
+        <button onclick="addItem('${i.name}',${i.price})">Add</button>
+      </div>
+    `;
+  });
 }
 
-function add(n,p){
-cart.push({name:n,price:p});
-cartDiv=document.getElementById("cart");
-cartDiv.innerHTML="";
-cart.forEach(i=>cartDiv.innerHTML+=`<p>${i.name}</p>`);
+/* ===== CART ===== */
+function addItem(name,price){
+  cart.push({name,price});
+  cartDiv.innerHTML="";
+  cart.forEach(i=>cartDiv.innerHTML+=`<p>${i.name}</p>`);
 }
 
+/* ===== PLACE ORDER ===== */
 function placeOrder(){
-let cust=JSON.parse(localStorage.getItem("customer"));
-let token=Math.floor(100+Math.random()*900);
-let now=new Date();
-let pickup=new Date(now.getTime()+stallInfo[stall.value].prep*60000);
-let order = {
-  token: token,
-  name: cust.name,
-  phone: cust.phone,
-  stall: stall.value,
-  items: cart,
-  location: stallInfo[stall.value].loc,
-  pickupTime: pickup.toLocaleTimeString(),
-  status: "Preparing"   // ⭐ THIS LINE FIXES "undefined"
-};
+  if(cart.length===0){ alert("Cart is empty"); return; }
 
+  const cust = JSON.parse(localStorage.getItem("customer"));
+  const stall = stallSelect.value;
 
-let orders=JSON.parse(localStorage.getItem("orders")||"[]");
-orders.push(order);
-localStorage.setItem("orders",JSON.stringify(orders));
+  const order={
+    token:Math.floor(100+Math.random()*900),
+    name:cust.name,
+    phone:cust.phone,
+    stall,
+    items:cart,
+    location:stallInfo[stall].loc,
+    pickupTime:new Date(Date.now()+stallInfo[stall].prep*60000).toLocaleTimeString(),
+    status:"Preparing"
+  };
 
-cart=[];
-menu.innerHTML="";
-cartDiv.innerHTML="";
-showOrders();
+  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+  orders.push(order);
+  localStorage.setItem("orders",JSON.stringify(orders));
+
+  cart=[];
+  cartDiv.innerHTML="";
+  menuDiv.innerHTML="";
+  showOrders();
 }
 
+/* ===== SHOW ORDERS ===== */
 function showOrders(){
-let cust=JSON.parse(localStorage.getItem("customer"));
-let orders=JSON.parse(localStorage.getItem("orders")||"[]");
-ordersDiv=document.getElementById("orders");
-ordersDiv.innerHTML="";
+  const cust=JSON.parse(localStorage.getItem("customer"));
+  if(!cust) return;
 
-orders.filter(o=>o.phone===cust.phone).forEach(o=>{
-ordersDiv.innerHTML+=`
-<div class="card">
-🎟 <b>Token:</b> ${o.token}<br>
-🍴 <b>Stall:</b> ${o.stall}<br>
-📍 ${o.location}<br>
-🧾 ${o.items.map(i=>i.name).join(", ")}<br>
-⏰ Pickup: ${o.pickupTime}<br>
-<b>Status:</b> ${o.status}
-</div>`;
-});
+  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+  ordersDiv.innerHTML="";
+
+  orders.filter(o=>o.phone===cust.phone).forEach(o=>{
+    ordersDiv.innerHTML+=`
+      <div class="card">
+        🎟 <b>Token:</b> ${o.token}<br>
+        🍴 <b>Stall:</b> ${o.stall}<br>
+        📍 ${o.location}<br>
+        🧾 ${o.items.map(i=>i.name).join(", ")}<br>
+        ⏰ Pickup: ${o.pickupTime}<br>
+        <b>Status:</b> ${o.status}
+      </div>
+    `;
+  });
 }
 
 setInterval(showOrders,3000);
 </script>
+
 </body>
 </html>
